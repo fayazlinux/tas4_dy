@@ -1,0 +1,30 @@
+FROM centos
+RUN yum install wget -y
+RUN yum install ncurses -y
+RUN yum install sudo -y
+RUN yum install git -y
+RUN yum install net-tools -y
+RUN sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+RUN sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+RUN yum install java -y
+RUN yum install jenkins -y
+RUN yum install initscripts -y
+CMD service jenkins start 
+RUN echo "jenkins ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
+
+
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.18.0/bin/linux/amd64/kubectl
+RUN chmod +x ./kubectl
+RUN sudo mv ./kubectl /usr/local/bin/kubectl
+RUN mkdir /root/.kube
+COPY /root/.kube/config /root/.kube/
+COPY /root/ca.crt /root/
+COPY /root/client.crt /root/
+COPY /root/client.key /root/
+
+RUN yum install git -y
+RUN yum install libselinux-utils-2.8-6.el8.x86_64 -y
+RUN yum install openssh-server -y
+CMD ssh-keygen -A
+CMD ["/usr/sbin/sshd" , "-D"]
+CMD setenforce 0
